@@ -3,34 +3,146 @@
 
 t_env	env;
 
-void	*allocate_with_mmap(size_t size)
+void	*mlc_allocate_with_mmap(size_t size)
 {
 	return (mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0));
 }
 
-char	init(void)
+t_block	*allocate_first_block(size_t size)
 {
-	if ((env.tiny = (t_block*)allocate_with_mmap(MAX_TINY * POOL_SIZE)) == (void*)-1 ||
-	 		(env.small = (t_block*)allocate_with_mmap(MAX_SMALL * POOL_SIZE)) == (void*)-1)
-			return (-1);
-	env.tiny->free = 1;
-	env.tiny->size = MAX_TINY * POOL_SIZE - BLOCK_SIZE;
-	env.small->free = 1;
-	env.small->size = MAX_SMALL * POOL_SIZE - BLOCK_SIZE;
+	t_block	*newblock;
+
+	if (size % getpagesize())
+		size = size / getpagesize() + getpagesize();
+	if ((newblock = (t_block*)mlc_allocate_with_mmap(size)) == (void*)-1)
+		return (NULL);
+	newblock->free = 1;
+	newblock->size = size - BLOCK_SIZE;
+	return (newblock);
+}
+
+char	mlc_init(void)
+{
+	if (!(env.tiny = allocate_first_block(MAX_TINY * POOL_SIZE)) ||
+	 		!(env.small = allocate_first_block(MAX_SMALL * POOL_SIZE)))
+			return (0);
 	env.large = NULL;
 	return (0);
 }
 
+t_block	*mlc_find_block(size_t size)
+{
+	t_block	*tmp;
+
+	if (size <= MAX_TINY)
+		tmp = env.tiny;
+	else if (size <= MAX_SMALL)
+		tmp = env.small;
+	else
+		tmp = env.large;
+	while (tmp && tmp->next && (size > MAX_SMALL || !tmp->free || tmp->size < size))
+		tmp = tmp->next;
+	return (tmp);
+}
+
+t_block	*mlc_split_block(t_block *block, size_t size)
+{
+	t_block *newblock;
+
+	if (size > MAX_SMALL)
+	{
+		if ((newblock = (t_block*)mlc_allocate_with_mmap(size)) == (void*)-1)
+			return (NULL);
+		newblock->size = size;
+		if (block)
+		{
+			newblock->prev = block;
+			block->next = newblock;
+		}
+		else
+		{
+			env.large = newblock;
+		}
+		return (newblock);
+	}
+	else
+	{
+		newblock = (void*)block->data + size;
+		newblock->size = block->size - size - BLOCK_SIZE;
+		newblock->free = 1;
+		block->size = size;
+	}
+	newblock->prev = block;
+	block->next = newblock;
+	return (block);
+}
+
+t_block	*mlc_fill_block(t_block *block, size_t size)
+{
+	if (size <= MAX_SMALL && (!block->free || block->size < size))
+	{
+		if (size > MAX_TINY)
+			block->next = allocate_first_block(MAX_SMALL * POOL_SIZE);
+		else
+			block->next = allocate_first_block(MAX_TINY * POOL_SIZE);
+		block = block->next;
+	}
+	if (size > MAX_SMALL || size < block->size)
+		block = mlc_split_block(block, size);
+	if (block)
+		block->free = 0;
+	return (block);
+}
+
+void show_alloc_mem(void)
+{
+	t_block *block;
+	unsigned long total;
+
+	printf("%s%p\n", "TINY: ", env.tiny);
+	block = env.tiny;
+	total = 0;
+	while (block && block->next)
+	{
+		printf("%p - %p : %lu octets\n", block->data, block->data + block->size, block->size);
+		total += block->size;
+		// printf("%p - %p : %lu octets\n", block->data, block->next, (unsigned long)block->next - (unsigned long)block->data);
+		// total += (unsigned long)block->next - (unsigned long)block->data;
+		block = block->next;
+	}
+	printf("%s%p\n", "SMALL: ", env.small);
+	block = env.small;
+	while (block && block->next)
+	{
+		printf("%p - %p : %lu octets\n", block->data, block->data + block->size, block->size);
+		total += block->size;
+		// printf("%p - %p : %lu octets\n", block->data, block->next, (unsigned long)block->next - (unsigned long)block->data);
+		// total += (unsigned long)block->next - (unsigned long)block->data;
+		block = block->next;
+	}
+	printf("%s%p\n", "LARGE: ", env.large);
+	block = env.large;
+	while (block)
+	{
+		printf("%p - %p : %lu octets\n", block->data, block->data + block->size, block->size);
+		total += block->size;
+		// printf("%p - %p : %lu octets\n", block->data, block->next, (unsigned long)block->next - (unsigned long)block->data);
+		// total += (unsigned long)block->next - (unsigned long)block->data;
+		block = block->next;
+	}
+	printf("Total: %lu\n", total);
+}
+
 void	*mallo(size_t size)
 {
-	(void)size;
+	t_block *block;
 
-	printf("%d\n", (int)env.tiny);
-	if (!env.tiny && init() == -1)
+	size = ALIGN4(size);
+	if (!env.tiny && mlc_init() == -1)
 		return (NULL);
-	printf("%d\n", (int)env.small->size);
-	printf("%d\n", (int)env.tiny->next);
-	printf("%d\n", (int)env.tiny->prev);
-	printf("%d\n", (int)env.tiny->free);
-	return (NULL);
+	block = mlc_fill_block(mlc_find_block(size), size);
+	show_alloc_mem();
+	if (block)
+		return (block->data);
+	return (block);
 }

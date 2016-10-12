@@ -3,12 +3,13 @@
 
 #include <sys/mman.h>
 #include <string.h>
+#include <unistd.h>
 
 # define BLOCK_SIZE 36
-# define MAX_TINY		16
-# define MAX_SMALL		1024
+# define MAX_TINY	16
+# define MAX_SMALL	1024
 # define POOL_SIZE	128
-# define ALIGN4(x) (((((x) -1) > >2) < <2)+4)
+# define ALIGN4(x)	(((((x) -1) >> 2) << 2)+4)
 
 typedef struct		s_block
 {
