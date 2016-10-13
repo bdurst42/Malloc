@@ -1,5 +1,4 @@
 #include "malloc.h"
-#include <stdio.h>
 
 int main(void)
 {
@@ -8,6 +7,7 @@ int main(void)
 	test = mallo(1);
 	test = mallo(3);
 	test = mallo(9);
+	free(test);
 	test = mallo(183);
 	test = mallo(124);
 	test = mallo(445);

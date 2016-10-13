@@ -2,14 +2,18 @@
 # define MALLOC_H
 
 #include <sys/mman.h>
-#include <string.h>
 #include <unistd.h>
+#		include <stdio.h>
 
-# define BLOCK_SIZE 36
-# define MAX_TINY	16
-# define MAX_SMALL	1024
-# define POOL_SIZE	128
-# define ALIGN4(x)	(((((x) -1) >> 2) << 2)+4)
+# define BLOCK_SIZE 		(3 * sizeof(void *) + sizeof(size_t) + sizeof(int))
+# define MAX_TINY			16
+# define MAX_SMALL			1024
+# define POOL_SIZE			128
+# define FLAG_FREE			(1 << 0)
+# define FLAG_START_HEAP	(1 << 1)
+# define IS_FREE(B)			(((B)->flag & FLAG_FREE))
+# define IS_START_HEAP(B)	(((B)->flag & FLAG_START_HEAP))
+# define ALIGN4(x)			(((((x) -1) >> 2) << 2)+4)
 
 typedef struct		s_block
 {
@@ -17,7 +21,7 @@ typedef struct		s_block
 	struct s_block	*next;
 	struct s_block	*prev;
 	void			*ptr;
-	int				free;
+	int				flag;
 	char			data[1];
 }					t_block;
 
@@ -31,5 +35,6 @@ typedef struct		s_env
 extern t_env	env;
 
 void				*mallo(size_t size);
+void				free(void *ptr);
 
 #endif

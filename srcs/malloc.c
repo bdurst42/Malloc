@@ -16,7 +16,7 @@ t_block	*allocate_first_block(size_t size)
 		size = size / getpagesize() + getpagesize();
 	if ((newblock = (t_block*)mlc_allocate_with_mmap(size)) == (void*)-1)
 		return (NULL);
-	newblock->free = 1;
+	newblock->flag ^= FLAG_FREE;
 	newblock->size = size - BLOCK_SIZE;
 	return (newblock);
 }
@@ -40,7 +40,7 @@ t_block	*mlc_find_block(size_t size)
 		tmp = env.small;
 	else
 		tmp = env.large;
-	while (tmp && tmp->next && (size > MAX_SMALL || !tmp->free || tmp->size < size))
+	while (tmp && tmp->next && (size > MAX_SMALL || !IS_FREE(tmp) || tmp->size < size))
 		tmp = tmp->next;
 	return (tmp);
 }
@@ -69,7 +69,7 @@ t_block	*mlc_split_block(t_block *block, size_t size)
 	{
 		newblock = (void*)block->data + size;
 		newblock->size = block->size - size - BLOCK_SIZE;
-		newblock->free = 1;
+		newblock->flag ^= FLAG_FREE;
 		block->size = size;
 	}
 	newblock->prev = block;
@@ -79,7 +79,7 @@ t_block	*mlc_split_block(t_block *block, size_t size)
 
 t_block	*mlc_fill_block(t_block *block, size_t size)
 {
-	if (size <= MAX_SMALL && (!block->free || block->size < size))
+	if (size <= MAX_SMALL && (!IS_FREE(block) || block->size < size))
 	{
 		if (size > MAX_TINY)
 			block->next = allocate_first_block(MAX_SMALL * POOL_SIZE);
@@ -90,7 +90,10 @@ t_block	*mlc_fill_block(t_block *block, size_t size)
 	if (size > MAX_SMALL || size < block->size)
 		block = mlc_split_block(block, size);
 	if (block)
-		block->free = 0;
+	{
+		block->ptr = block->data;
+		block->flag |= FLAG_FREE;
+	}
 	return (block);
 }
 
@@ -104,18 +107,24 @@ void show_alloc_mem(void)
 	total = 0;
 	while (block && block->next)
 	{
-		printf("%p - %p : %lu octets\n", block->data, block->data + block->size, block->size);
-		total += block->size;
+		if (!IS_FREE(block))
+		{
+			printf("block = %p %p - %p : %lu octets\n", block, block->data, block->data + block->size, block->size);
+			total += block->size;
+		}
 		// printf("%p - %p : %lu octets\n", block->data, block->next, (unsigned long)block->next - (unsigned long)block->data);
 		// total += (unsigned long)block->next - (unsigned long)block->data;
 		block = block->next;
 	}
-	printf("%s%p\n", "SMALL: ", env.small);
+	printf("%s%p\n",  "SMALL: ", env.small);
 	block = env.small;
 	while (block && block->next)
 	{
-		printf("%p - %p : %lu octets\n", block->data, block->data + block->size, block->size);
-		total += block->size;
+		if (!IS_FREE(block))
+		{
+			printf("%p - %p : %lu octets\n", block->data, block->data + block->size, block->size);
+			total += block->size;
+		}
 		// printf("%p - %p : %lu octets\n", block->data, block->next, (unsigned long)block->next - (unsigned long)block->data);
 		// total += (unsigned long)block->next - (unsigned long)block->data;
 		block = block->next;
