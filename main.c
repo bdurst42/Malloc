@@ -3,16 +3,17 @@
 int main(void)
 {
 	char *test;
-	test = mallo(5);
-	test = mallo(1);
-	test = mallo(3);
-	test = mallo(9);
+	test = malloc(5);
+	test = malloc(1);
+	test = malloc(3);
+	test = malloc(9);
 	free(test);
-	test = mallo(183);
-	test = mallo(124);
-	test = mallo(445);
-	test = mallo(23);
-	test = mallo(4453);
-	test = mallo(5445);
+	test = malloc(183);
+	test = malloc(124);
+	test = malloc(445);
+	test = malloc(23);
+	test = malloc(4453);
+	test = malloc(5445);
+	realloc(test, 12);
 	return (0);
 }

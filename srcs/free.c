@@ -1,16 +1,21 @@
 #include "malloc.h"
 
-void	merge_blocks(t_block *block)
+t_block	*merge_blocks(t_block *block)
 {
-	while (block->prev && IS_FREE(block->prev))
-		block = block->prev;
-	while (block->next && IS_FREE(block->next))
+	if (!IS_START_HEAP(block))
+	{
+		while (block->prev && IS_FREE(block->prev)
+			&& !IS_START_HEAP(block->prev))
+			block = block->prev;
+	}
+	while (block->next && IS_FREE(block->next) && !IS_START_HEAP(block->next))
 	{
 		block->size += BLOCK_SIZE + block->next->size;
 		block->next = block->next->next;
 	}
 	if (block->next)
 		block->next->prev = block;
+	return (block);
 }
 
 void	pop_block(t_block *block)
@@ -23,15 +28,13 @@ void	pop_block(t_block *block)
 
 void	deallocate_block(t_block *block)
 {
-	block->flag ^= FLAG_FREE;
-	if (block->size > MAX_SMALL)
+	block->flag |= FLAG_FREE;
+	if (block->size <= MAX_SMALL)
+		block = merge_blocks(block);
+	else if ((IS_START_HEAP(block) && !block->next) || BLOCK_SIZE > MAX_SMALL)
 	{
 		munmap(block->data, block->size);
 		pop_block(block);
-	}
-	else
-	{
-		merge_blocks(block);
 	}
 }
 
