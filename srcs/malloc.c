@@ -17,7 +17,6 @@ t_block	*allocate_first_block(size_t size)
 	if ((newblock = (t_block*)allocate_with_mmap(size)) == (void*)-1)
 		return (NULL);
 	newblock->flag |= FLAG_FREE;
-	newblock->flag |= FLAG_START_HEAP;
 	newblock->size = size - BLOCK_SIZE;
 	return (newblock);
 }
@@ -85,6 +84,7 @@ t_block	*fill_block(t_block *block, size_t size)
 			block->next = allocate_first_block(MAX_SMALL * POOL_SIZE);
 		else
 			block->next = allocate_first_block(MAX_TINY * POOL_SIZE);
+		block->next->flag |= FLAG_START_HEAP;
 		block = block->next;
 	}
 	if (size > MAX_SMALL || size < block->size)
