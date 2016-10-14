@@ -39,5 +39,9 @@ void				free(void *ptr);
 void				*realloc(void *ptr, size_t size);
 t_block				*split_block(t_block *block, size_t size);
 void				show_alloc_mem(void);
+char				*ft_utoa(unsigned long long n, size_t nbase, char *base);
+void   				ft_putnbr(int n);
+void				ft_putchar(char c);
+void				ft_putstr(char const *str);
 
 #endif

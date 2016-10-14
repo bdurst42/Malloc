@@ -1,5 +1,4 @@
 #include "malloc.h"
-#include 				<stdio.h>
 
 t_env	env;
 
@@ -97,44 +96,7 @@ t_block	*fill_block(t_block *block, size_t size)
 	return (block);
 }
 
-void show_alloc_mem(void)
-{
-	t_block *block;
-	unsigned long total;
 
-	printf("%s%p\n", "TINY: ", env.tiny);
-	block = env.tiny;
-	total = 0;
-	while (block && block->next)
-	{
-		if (!IS_FREE(block))
-		{
-			printf("%p - %p : %lu octets\n", block->data, block->data + block->size, block->size);
-			total += block->size;
-		}
-		block = block->next;
-	}
-	printf("%s%p\n",  "SMALL: ", env.small);
-	block = env.small;
-	while (block && block->next)
-	{
-		if (!IS_FREE(block))
-		{
-			printf("%p - %p : %lu octets\n", block->data, block->data + block->size, block->size);
-			total += block->size;
-		}
-		block = block->next;
-	}
-	printf("%s%p\n", "LARGE: ", env.large);
-	block = env.large;
-	while (block)
-	{
-		printf("%p - %p : %lu octets\n", block->data, block->data + block->size, block->size);
-		total += block->size;
-		block = block->next;
-	}
-	printf("Total: %lu\n", total);
-}
 
 void	*malloc(size_t size)
 {
