@@ -53,6 +53,7 @@ t_block	*split_block(t_block *block, size_t size)
 	{
 		if ((newblock = (t_block*)allocate_with_mmap(size)) == (void*)-1)
 			return (NULL);
+		newblock->flag |= FLAG_FREE;
 		newblock->size = size;
 		if (block)
 		{

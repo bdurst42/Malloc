@@ -14,6 +14,7 @@ int main(void)
 	test = malloc(23);
 	test = malloc(4453);
 	test = malloc(5445);
-	realloc(test, 12);
+	test = realloc(test, 12);
+	test = malloc(2);
 	return (0);
 }

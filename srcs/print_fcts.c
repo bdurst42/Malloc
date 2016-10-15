@@ -1,20 +1,5 @@
 #include "malloc.h"
 
-static size_t	ft_unbrlen(unsigned long long nb, int base)
-{
-	int	i;
-
-	i = 0;
-	if (nb == 0)
-		return (1);
-	while (nb)
-	{
-		i++;
-		nb /= base;
-	}
-	return (i);
-}
-
 void	ft_putchar(char c)
 {
 	write (1, &c, 1);
@@ -33,22 +18,15 @@ void	ft_putstr(char const *str)
 	write (1, str, i);
 }
 
-char		*ft_utoa(unsigned long long n, size_t nbase, char *base)
+void    ft_puthexa(unsigned long n, size_t nbase, char *base)
 {
-	char				*dst;
-	unsigned long long	i;
-	unsigned long long	k;
-
-	k = n;
-	i = ft_unbrlen(n, nbase);
-	dst = malloc(sizeof(char) * (i + 1));
-	dst[i] = '\0';
-	while ((--i + 1) != 0)
-	{
-		dst[i] = base[k % nbase];
-		k = k / nbase;
-	}
-	return (dst);
+    if (n > nbase - 1)
+    {
+        ft_puthexa(n / nbase, nbase, base);
+        ft_puthexa(n % nbase, nbase, base);
+    }
+    else
+        ft_putchar(base[n]);
 }
 
 void    ft_putnbr(int n)

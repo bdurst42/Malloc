@@ -25,14 +25,16 @@ void	copy_block(t_block *block, t_block *newblock)
 
 void	*new_alloc(t_block *block, size_t size)
 {
+	void	*new_ptr;
 	t_block	*newblock;
 
-	if (!(newblock = malloc(size)))
+	newblock = NULL;
+	if (!(new_ptr = malloc(size)))
 		return (NULL);
-	newblock = (t_block*)(newblock - BLOCK_SIZE);
+	newblock = (t_block*)(new_ptr - BLOCK_SIZE);
 	copy_block(block, newblock);
-	free(new_alloc);
-	return (newblock);
+	free(block->data);
+	return (newblock->data);
 }
 
 void	*realloc(void *ptr, size_t size)
