@@ -31,7 +31,7 @@ void	deallocate_block(t_block *block)
 	block->flag |= FLAG_FREE;
 	if (block->size <= MAX_SMALL)
 		block = merge_blocks(block);
-	else if ((IS_START_HEAP(block) && !block->next) || BLOCK_SIZE > MAX_SMALL)
+	else if ((IS_START_HEAP(block) && !block->next) || block->size > MAX_SMALL)
 	{
 		munmap(block->data, block->size);
 		pop_block(block);

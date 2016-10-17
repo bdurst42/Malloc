@@ -10,17 +10,22 @@ CFLAGS = -Wall -Wextra -Werror
 
 MFLAGS =
 
-INCLUDE_DIR = ./include
+INCLUDE_DIR = ./includes
 
 DIR_OBJ = ./obj/
 
-SRC_DIR = ./src/
+SRC_DIR = ./srcs/
 
-MAIN = main.c
+MAIN =
 
 LIEN = libft_malloc.so
 
-FILES =
+FILES = malloc.c \
+		free.c \
+		realloc.c \
+		show_alloc_mem.c \
+		show_alloc_mem_ex.c \
+		print_fcts.c
 
 OBJS = $(patsubst %.c, $(DIR_OBJ)%.o, $(FILES)) $(patsubst %.c, $(DIR_OBJ)%.o, $(MAIN))
 

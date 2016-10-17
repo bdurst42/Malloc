@@ -25,6 +25,14 @@ typedef struct		s_block
 	char			data[1];
 }					t_block;
 
+typedef struct		s_infos
+{
+	unsigned long 	total_used_memory;
+	unsigned long 	total_unused_memory;
+	unsigned long 	total_structs_memory;
+	int				nb_pools;
+}					t_infos;
+
 typedef struct		s_env
 {
 	t_block			*tiny;
@@ -39,6 +47,7 @@ void				free(void *ptr);
 void				*realloc(void *ptr, size_t size);
 t_block				*split_block(t_block *block, size_t size);
 void				show_alloc_mem(void);
+void				show_alloc_mem_ex(void);
 void   				ft_putnbr(int n);
 void				ft_putchar(char c);
 void				ft_putstr(char const *str);

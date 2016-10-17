@@ -107,7 +107,7 @@ void	*malloc(size_t size)
 	if (!env.tiny && init() == -1)
 		return (NULL);
 	block = fill_block(find_block(size), size);
-	show_alloc_mem();
+	show_alloc_mem_ex();
 	if (block)
 		return (block->data);
 	return (block);
