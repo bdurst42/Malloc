@@ -36,10 +36,12 @@ void show_alloc_mem(void)
 	unsigned long	total;
 
 	total = 0;
+	pthread_mutex_lock(&thread_safe.mutex_show_alloc_mem);
 	foreach_block(env.tiny, "TINY", &total);
 	foreach_block(env.small, "SMALL", &total);
 	foreach_block(env.large, "LARGE", &total);
 	ft_putstr("Total: ");
 	ft_putnbr(total);
 	ft_putchar('\n');
+	pthread_mutex_unlock(&thread_safe.mutex_show_alloc_mem);
 }

@@ -42,7 +42,9 @@ void	free(void *ptr)
 {
 	t_block *block;
 
+	pthread_mutex_lock(&thread_safe.mutex_free);
 	block = (t_block*)(ptr - BLOCK_SIZE);
 	if (block && !IS_FREE(block) && block->data == block->ptr)
 		deallocate_block(block);
+	pthread_mutex_unlock(&thread_safe.mutex_free);
 }

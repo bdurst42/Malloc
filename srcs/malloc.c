@@ -1,6 +1,13 @@
 #include "malloc.h"
 
 t_env	env;
+t_thread_safe	thread_safe = {
+	.mutex_malloc = PTHREAD_MUTEX_INITIALIZER,
+	.mutex_realloc = PTHREAD_MUTEX_INITIALIZER,
+	.mutex_free = PTHREAD_MUTEX_INITIALIZER,
+	.mutex_show_alloc_mem = PTHREAD_MUTEX_INITIALIZER,
+	.mutex_show_alloc_mem_ex = PTHREAD_MUTEX_INITIALIZER,
+};
 
 void	*allocate_with_mmap(size_t size)
 {
@@ -33,12 +40,23 @@ t_block	*find_block(size_t size)
 {
 	t_block	*tmp;
 
+	// ft_putnbr(size);
 	if (size <= MAX_TINY)
+	{
+	// ft_putstr(" FIND TINY\n");
 		tmp = env.tiny;
+	}
 	else if (size <= MAX_SMALL)
+	{
+	// ft_putstr(" FIND SMALL\n");
+
 		tmp = env.small;
+	}
 	else
+	{
+	// ft_putstr(" FIND LARGE\n");
 		tmp = env.large;
+	}
 	while (tmp && tmp->next && (size > MAX_SMALL || !IS_FREE(tmp) || tmp->size < size))
 		tmp = tmp->next;
 	return (tmp);
@@ -64,7 +82,7 @@ t_block	*split_block(t_block *block, size_t size)
 			env.large = newblock;
 		return (newblock);
 	}
-	else if (block->size - size >= BLOCK_SIZE + 4)
+	else if ((size > MAX_TINY && block->size - size > BLOCK_SIZE + MAX_TINY) || (size <= MAX_TINY && block->size - size >= BLOCK_SIZE + 4))
 	{
 		newblock = (void*)block->data + size;
 		newblock->size = block->size - size - BLOCK_SIZE;
@@ -103,11 +121,14 @@ void	*malloc(size_t size)
 {
 	t_block *block;
 
+	ft_putstr("CALLLL\n");
+	pthread_mutex_lock(&thread_safe.mutex_malloc);
 	size = ALIGN4(size);
 	if (!env.tiny && init() == -1)
 		return (NULL);
 	block = fill_block(find_block(size), size);
-	show_alloc_mem_ex();
+	// show_alloc_mem_ex();
+	pthread_mutex_unlock(&thread_safe.mutex_malloc);
 	if (block)
 		return (block->data);
 	return (block);

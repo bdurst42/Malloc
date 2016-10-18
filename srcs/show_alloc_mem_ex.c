@@ -58,7 +58,6 @@ static void 	print_infos(t_block *start)
 		{
 			print_infos_pool(&infos_pool, 1, "pool ");
 			++infos_pool.nb_pools;
-			printf("%s\n", "WTFFFF");
 		}
 		if (!IS_FREE(block))
 		{
@@ -81,8 +80,10 @@ static void 	print_infos(t_block *start)
 
 void	show_alloc_mem_ex(void)
 {
+	pthread_mutex_lock(&thread_safe.mutex_show_alloc_mem_ex);
 	ft_putstr("TINY: \n");
 	print_infos(env.tiny);
 	ft_putstr("SMALL: \n");
 	print_infos(env.small);
+	pthread_mutex_unlock(&thread_safe.mutex_show_alloc_mem_ex);
 }

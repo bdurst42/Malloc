@@ -3,6 +3,7 @@
 
 #include <sys/mman.h>
 #include <unistd.h>
+#include <pthread.h>
 #		include <stdio.h>
 
 # define BLOCK_SIZE 		(3 * sizeof(void *) + sizeof(size_t) + sizeof(int))
@@ -40,7 +41,17 @@ typedef struct		s_env
 	t_block			*large;
 }					t_env;
 
+typedef struct		s_thread_safe
+{
+	pthread_mutex_t	mutex_malloc;
+	pthread_mutex_t	mutex_realloc;
+	pthread_mutex_t	mutex_free;
+	pthread_mutex_t	mutex_show_alloc_mem;
+	pthread_mutex_t	mutex_show_alloc_mem_ex;
+}					t_thread_safe;
+
 extern t_env	env;
+extern t_thread_safe thread_safe;
 
 void				*malloc(size_t size);
 void				free(void *ptr);

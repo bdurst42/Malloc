@@ -43,11 +43,18 @@ void	*realloc(void *ptr, size_t size)
 	char	merge;
 
 	merge = 0;
+	pthread_mutex_lock(&thread_safe.mutex_realloc);
 	if (!ptr)
+	{
+		pthread_mutex_unlock(&thread_safe.mutex_realloc);
 		return (malloc(size));
+	}
 	block = (t_block*)(ptr - BLOCK_SIZE);
 	if (block->size == size)
+	{
+		pthread_mutex_unlock(&thread_safe.mutex_realloc);
 		return (ptr);
+	}
 	if (block && block->data == block->ptr)
 	{
 		size = ALIGN4(size);
@@ -60,7 +67,11 @@ void	*realloc(void *ptr, size_t size)
 				merge = try_merge_with_next_block(block, size);
 		}
 		else if (!merge)
+		{
+			pthread_mutex_unlock(&thread_safe.mutex_realloc);
 			return new_alloc(block, size);
+		}
 	}
+	pthread_mutex_unlock(&thread_safe.mutex_realloc);
 	return (NULL);
 }
