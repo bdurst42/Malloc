@@ -55,8 +55,9 @@ void	*realloc(void *ptr, size_t size)
 		pthread_mutex_unlock(&thread_safe.mutex_realloc);
 		return (ptr);
 	}
-	if (block && block->data == block->ptr)
+	if (block)
 	{
+		ft_putstr("yolo\n");
 		size = ALIGN4(size);
 		if ((block->size <= MAX_TINY && size <= MAX_TINY)
 			| (block->size <= MAX_SMALL && size <= MAX_SMALL))

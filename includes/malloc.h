@@ -6,7 +6,7 @@
 #include <pthread.h>
 #		include <stdio.h>
 
-# define BLOCK_SIZE 		(3 * sizeof(void *) + sizeof(size_t) + sizeof(int))
+# define BLOCK_SIZE 		(2 * sizeof(void *) + sizeof(size_t) + sizeof(int))
 # define MAX_TINY			16
 # define MAX_SMALL			1024
 # define POOL_SIZE			128
@@ -21,7 +21,6 @@ typedef struct		s_block
 	size_t			size;
 	struct s_block	*next;
 	struct s_block	*prev;
-	void			*ptr;
 	int				flag;
 	char			data[1];
 }					t_block;
@@ -44,6 +43,7 @@ typedef struct		s_env
 typedef struct		s_thread_safe
 {
 	pthread_mutex_t	mutex_malloc;
+	// pthread_mutex_t	mutex_calloc;
 	pthread_mutex_t	mutex_realloc;
 	pthread_mutex_t	mutex_free;
 	pthread_mutex_t	mutex_show_alloc_mem;
@@ -54,6 +54,7 @@ extern t_env	env;
 extern t_thread_safe thread_safe;
 
 void				*malloc(size_t size);
+// void				*calloc(size_t number, size_t size);
 void				free(void *ptr);
 void				*realloc(void *ptr, size_t size);
 t_block				*split_block(t_block *block, size_t size);

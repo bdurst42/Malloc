@@ -29,8 +29,15 @@ void	pop_block(t_block *block)
 void	deallocate_block(t_block *block)
 {
 	block->flag |= FLAG_FREE;
+		ft_putstr("before size = ");
+		ft_putnbr(block->size);
+		ft_putstr("\nflag = ");
+		ft_putnbr(block->flag);
+		ft_putstr("\n");
 	if (block->size <= MAX_SMALL)
+	{
 		block = merge_blocks(block);
+	}
 	else if ((IS_START_HEAP(block) && !block->next) || block->size > MAX_SMALL)
 	{
 		munmap(block->data, block->size);
@@ -44,7 +51,10 @@ void	free(void *ptr)
 
 	pthread_mutex_lock(&thread_safe.mutex_free);
 	block = (t_block*)(ptr - BLOCK_SIZE);
-	if (block && !IS_FREE(block) && block->data == block->ptr)
+	if (block && !IS_FREE(block))
+	{
 		deallocate_block(block);
+		ft_putstr("after\n");
+	}
 	pthread_mutex_unlock(&thread_safe.mutex_free);
 }
