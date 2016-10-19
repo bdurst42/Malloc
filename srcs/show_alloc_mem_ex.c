@@ -80,10 +80,10 @@ static void 	print_infos(t_block *start)
 
 void	show_alloc_mem_ex(void)
 {
-	pthread_mutex_lock(&thread_safe.mutex_show_alloc_mem_ex);
+	// pthread_mutex_lock(&thread_safe.mutex_show_alloc_mem_ex);
 	ft_putstr("TINY: \n");
 	print_infos(env.tiny);
 	ft_putstr("SMALL: \n");
 	print_infos(env.small);
-	pthread_mutex_unlock(&thread_safe.mutex_show_alloc_mem_ex);
+	// pthread_mutex_unlock(&thread_safe.mutex_show_alloc_mem_ex);
 }

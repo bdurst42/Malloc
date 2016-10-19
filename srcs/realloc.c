@@ -51,18 +51,18 @@ void	*realloc(void *ptr, size_t size)
 
 	merge = 0;
 	malloc_debug(SUCCES, "-- REALLOC --", "");
-	pthread_mutex_lock(&thread_safe.mutex_realloc);
+	// pthread_mutex_lock(&thread_safe.mutex_realloc);
 	if (!ptr)
 	{
 		malloc_debug(SUCCES, "Realloc : ", "Addr null");
-		pthread_mutex_unlock(&thread_safe.mutex_realloc);
+		// pthread_mutex_unlock(&thread_safe.mutex_realloc);
 		return (malloc(size));
 	}
 	block = (t_block*)(ptr - BLOCK_SIZE);
 	if (block->size == size)
 	{
 		malloc_debug(SUCCES, "Realloc : ", "Same size");
-		pthread_mutex_unlock(&thread_safe.mutex_realloc);
+		// pthread_mutex_unlock(&thread_safe.mutex_realloc);
 		return (ptr);
 	}
 	if (block && block->data == block->ptr)
@@ -78,11 +78,11 @@ void	*realloc(void *ptr, size_t size)
 		}
 		else if (!merge)
 		{
-			pthread_mutex_unlock(&thread_safe.mutex_realloc);
+			// pthread_mutex_unlock(&thread_safe.mutex_realloc);
 			return new_alloc(block, size);
 		}
 	}
-	pthread_mutex_unlock(&thread_safe.mutex_realloc);
+	// pthread_mutex_unlock(&thread_safe.mutex_realloc);
 	malloc_debug(ERROR, "Realloc : ", "failed :(");
 	return (NULL);
 }

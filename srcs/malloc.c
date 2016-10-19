@@ -1,44 +1,35 @@
 #include "malloc.h"
 
 t_env	env;
-t_thread_safe	thread_safe = {
-	.mutex_malloc = PTHREAD_MUTEX_INITIALIZER,
-	.mutex_calloc = PTHREAD_MUTEX_INITIALIZER,
-	.mutex_realloc = PTHREAD_MUTEX_INITIALIZER,
-	.mutex_free = PTHREAD_MUTEX_INITIALIZER,
-	.mutex_show_alloc_mem = PTHREAD_MUTEX_INITIALIZER,
-	.mutex_show_alloc_mem_ex = PTHREAD_MUTEX_INITIALIZER,
-};
+// t_thread_safe	thread_safe = {
+	// .mutex_malloc = PTHREAD_MUTEX_INITIALIZER,
+	// .mutex_calloc = PTHREAD_MUTEX_INITIALIZER,
+	// .mutex_realloc = PTHREAD_MUTEX_INITIALIZER,
+	// .mutex_free = PTHREAD_MUTEX_INITIALIZER,
+	// .mutex_show_alloc_mem = PTHREAD_MUTEX_INITIALIZER,
+	// .mutex_show_alloc_mem_ex = PTHREAD_MUTEX_INITIALIZER,
+// };
 
-void	*allocate_with_mmap(size_t size)
+static t_block	*allocate_with_mmap(size_t size)
 {
 	void	*ret;
+	t_block	*newblock;
 	static int mdr = 0;
 	static int i = 0;
 
 	mdr += size / getpagesize();
-	// ft_putstr("MDRRRRRRRR:");
-	// ft_putnbr(mdr);
-	// ft_putstr("\n\n");
 	if (size % getpagesize())
 		size = (size / getpagesize() + 1) * getpagesize();
 	
 	ret = mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
 	i += size;
-	// ft_putstr("getpagesize = ");
-	// ft_putnbr(getpagesize());
-	// ft_putstr("\nnb alloc = ");
-	// ft_putnbr(i / getpagesize());
-	// ft_putstr("\nsize / getpagesize = ");
-	// ft_putnbr(size / getpagesize());
-	// ft_putstr("\nsize = ");
-	// ft_putnbr(size);
-	// ft_putstr("\n");
 	if (ret == (void*)-1)
 		malloc_debug(ERROR, "Malloc : ", "MMAP failed");
 	else
 		malloc_debug(SUCCES, "Malloc : ", "MMAP succes");
-	return (ret);
+	newblock = (t_block*)ret;
+	newblock->size = size - BLOCK_SIZE;
+	return (newblock);
 }
 
 t_block	*allocate_first_block(size_t size)
@@ -46,10 +37,9 @@ t_block	*allocate_first_block(size_t size)
 	t_block	*newblock;
 	
 	malloc_debug(SUCCES, "Malloc : ", "Allocate first pool");
-	if ((newblock = (t_block*)allocate_with_mmap(size)) == (void*)-1)
+	if ((newblock = allocate_with_mmap(size)) == (void*)-1)
 		return (NULL);
 	newblock->flag |= FLAG_FREE;
-	newblock->size = size - BLOCK_SIZE;
 	return (newblock);
 }
 
@@ -67,7 +57,6 @@ t_block	*get_block(size_t size)
 {
 	t_block	*tmp;
 
-	// ft_putnbr(size);
 	if (size <= MAX_TINY)
 	{
 	 	malloc_debug(SUCCES, "Malloc : ", "Get TINY");
@@ -84,7 +73,18 @@ t_block	*get_block(size_t size)
 		tmp = env.large;
 	}
 	while (tmp && tmp->next && (size > MAX_SMALL || !IS_FREE(tmp) || tmp->size < size))
+	{
+		ft_putstr("loop\n");
 		tmp = tmp->next;
+	}
+	if (tmp)
+	{
+		ft_putstr("tmp->next = ");
+		ft_puthexa((unsigned long)tmp->next, 16, "0123456789ABCDEF");
+		ft_putstr("\n");
+	}
+	else
+		ft_putstr("tmp doesn't exist\n");
 	return (tmp);
 }
 
@@ -100,6 +100,8 @@ t_block	*split_block(t_block *block, size_t size)
 			return (NULL);
 		newblock->flag |= FLAG_FREE;
 		newblock->size = size;
+		newblock->next = NULL;
+		newblock->prev = NULL;
 		if (block)
 		{
 			newblock->prev = block;
@@ -112,12 +114,46 @@ t_block	*split_block(t_block *block, size_t size)
 	else if ((size > MAX_TINY && block->size - size > BLOCK_SIZE + MAX_TINY) || (size <= MAX_TINY && block->size - size >= BLOCK_SIZE + 4))
 	{
 		malloc_debug(SUCCES, "Malloc : ", "Split TINY or SMALL block");
+		ft_putstr("block = ");
+		ft_puthexa((unsigned long)block, 16, "0123456789ABCDEF");
+		ft_putstr("\nblock->size = ");
+		ft_putnbr(block->size);
+		ft_putstr("\nblock->flag = ");
+		ft_putnbr(block->flag);
+		ft_putstr("\nblock->next = ");
+		ft_puthexa((unsigned long)block->next, 16, "0123456789ABCDEF");
+		ft_putstr("\nblock->prev = ");
+		ft_puthexa((unsigned long)block->prev, 16, "0123456789ABCDEF");
+		ft_putstr("\n\n");
 		newblock = (void*)block->data + size;
 		newblock->size = block->size - size - BLOCK_SIZE;
 		newblock->flag |= FLAG_FREE;
 		block->size = size;
+		newblock->next = block->next;
 		block->next = newblock;
 		newblock->prev = block;
+		ft_putstr("block = ");
+		ft_puthexa((unsigned long)block, 16, "0123456789ABCDEF");
+		ft_putstr("\nblock->size = ");
+		ft_putnbr(block->size);
+		ft_putstr("\nblock->flag = ");
+		ft_putnbr(block->flag);
+		ft_putstr("\nblock->next = ");
+		ft_puthexa((unsigned long)block->next, 16, "0123456789ABCDEF");
+		ft_putstr("\nblock->prev = ");
+		ft_puthexa((unsigned long)block->prev, 16, "0123456789ABCDEF");
+		ft_putstr("\n\n");
+		ft_putstr("newblock = ");
+		ft_puthexa((unsigned long)newblock, 16, "0123456789ABCDEF");
+		ft_putstr("\nnewblock->size = ");
+		ft_putnbr(newblock->size);
+		ft_putstr("\nnewblock->flag = ");
+		ft_putnbr(newblock->flag);
+		ft_putstr("\nnewblock->next = ");
+		ft_puthexa((unsigned long)newblock->next, 16, "0123456789ABCDEF");
+		ft_putstr("\nnewblock->prev = ");
+		ft_puthexa((unsigned long)newblock->prev, 16, "0123456789ABCDEF");
+		ft_putstr("\n\n");
 	}
 	return (block);
 }
@@ -155,9 +191,8 @@ void	*malloc(size_t size)
 {
 	t_block *block;
 
-	// ft_putstr("malloc\n");
 	malloc_debug(SUCCES, "-- MALLOC --", "");
-	pthread_mutex_lock(&thread_safe.mutex_malloc);
+	// pthread_mutex_lock(&thread_safe.mutex_malloc);
 	size = ALIGN4(size);
 	if (!env.tiny && init() == -1)
 	{
@@ -166,15 +201,10 @@ void	*malloc(size_t size)
 	}
 	block = fill_block(get_block(size), size);
 	// show_alloc_mem();
-	pthread_mutex_unlock(&thread_safe.mutex_malloc);
-	// ft_putstr("alloc block ---> ");
-	// ft_puthexa((unsigned long)block, 16, "0123456789ABCDEF");
-	// ft_putstr("\n");
+	// pthread_mutex_unlock(&thread_safe.mutex_malloc);
+
 	if (block)
 	{
-	// ft_putstr("alloc data---> ");
-	// ft_puthexa((unsigned long)block->data, 16, "0123456789ABCDEF");
-	// ft_putstr("\n");
 		malloc_debug(SUCCES, "Malloc : ", "Malloc succes !");
 		return (block->data);
 	}
