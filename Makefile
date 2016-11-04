@@ -27,7 +27,8 @@ FILES = malloc.c \
 		show_alloc_mem_ex.c \
 		print_fcts.c \
 		malloc_debug.c \
-		calloc.c
+		calloc.c \
+		reallocf.c
 
 
 OBJS = $(patsubst %.c, $(DIR_OBJ)%.o, $(FILES)) $(patsubst %.c, $(DIR_OBJ)%.o, $(MAIN))

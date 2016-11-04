@@ -1,28 +1,18 @@
 #include "malloc.h"
 
-void	*ft_memset(void *b, int c, size_t len)
-{
-	char	*s;
-
-	if (!b)
-		return (NULL);
-	s = b;
-	while (len > 0)
-	{
-		*s = c;
-		s++;
-		len--;
-	}
-	return (b);
-}
-
-void	*calloc(size_t number, size_t size)
+void	*calloc(unsigned long number, unsigned long size)
 {
 	char	*new;
 	size_t	i;
+	t_block	*block;
 
 	i = 0;
-	malloc_debug(SUCCES, "-- CALLOC --", "");
+	malloc_debug(HEADER, "-- CALLOC --", "");
+	ft_putstr("size = ");
+		ft_putnbr(size);
+		ft_putstr("\nnumber = ");
+		ft_putnbr(number);
+		ft_putstr("\n");
 	// pthread_mutex_lock(&thread_safe.mutex_calloc);
 	if (!number || !size)
 	{
@@ -33,26 +23,20 @@ void	*calloc(size_t number, size_t size)
 	new = malloc(number * size);
 	if (new)
 	{
+		block = (t_block*)(new - BLOCK_SIZE);
+		ft_putstr("Block->size = ");
+		ft_putnbr(block->size);
+		ft_putstr("\n");
 		malloc_debug(SUCCES, "Calloc : ", "Fill allocation");
-		// size = ALIGN4(number * size);
-		// if (size > MAX_SMALL)
-		// {
-			// if (size % getpagesize())
-				// size = (size / getpagesize() + 1) * getpagesize();
-		// }
-		// size /= sizeof(new);
-		while (i < size * number)
-		{
-		 	new[i] = 0;
-		 	i++;
-		}
+		ft_putstr("calloc size -> ");
+		ft_putnbr(size);
+		ft_putstr("\n");
+		// size /= `sizeof(new);
+		while (i < block->size)
+		 	new[i++] = 0;
 		// ft_memset(new, 0, size);
+		malloc_debug(SUCCES, "Calloc : ", "Succes !");
 	}
-	// ft_putnbr((int)new);
-	// 	ft_putstr("\n");
 	// pthread_mutex_unlock(&thread_safe.mutex_calloc);
-	ft_putstr("calloc -> ");
-	ft_puthexa((unsigned long)new, 16, "0123456789ABCDEF");
-	ft_putstr("\n");
 	return (new);
 }

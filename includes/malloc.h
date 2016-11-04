@@ -12,15 +12,18 @@
 # define MAX_SMALL			1024
 # define POOL_SIZE			128
 
-# define ERROR			"\033[0;31m"	
-# define SUCCES			"\033[0;32m"	
+# define ERROR			"\033[0;31m"
+# define SUCCES			"\033[0;32m"
+# define HEADER			"\033[0;34m"
 # define END			"\033[0m"
 
 # define FLAG_FREE			(1 << 0)
 # define FLAG_START_HEAP	(1 << 1)
+# define FLAG_CANT_SPLIT	(1 << 2)
 
 # define IS_FREE(B)			(((B)->flag & FLAG_FREE))
 # define IS_START_HEAP(B)	(((B)->flag & FLAG_START_HEAP))
+# define IS_CANT_SPLIT(B)	(((B)->flag & FLAG_CANT_SPLIT))
 # define ALIGN4(x)			(((((x) -1) >> 2) << 2)+4)
 
 typedef struct		s_block
@@ -65,7 +68,8 @@ void				*malloc(size_t size);
 void				*calloc(size_t number, size_t size);
 void				free(void *ptr);
 void				*realloc(void *ptr, size_t size);
-t_block				*split_block(t_block *block, size_t size);
+void				*reallocf(void *p, size_t size);
+t_block				*split_block(t_block *block, size_t size, char src);
 void				show_alloc_mem(void);
 void				show_alloc_mem_ex(void);
 void   				ft_putnbr(int n);
