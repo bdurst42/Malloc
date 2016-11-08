@@ -1,6 +1,6 @@
- #include <stdlib.h>
+// #include <stdlib.h>
 // #include "malloc.h"
-#include <unistd.h>
+// #include <unistd.h>
 
 int main(void)
 {
@@ -11,7 +11,6 @@ int main(void)
 	while (i < 1024)
 	{
 		addr = (char*)malloc(1024);
-		// write(1, "test\n", 5);
 		addr[0] = 42;
 		i++;
 	}

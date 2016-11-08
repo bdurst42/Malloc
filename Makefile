@@ -30,7 +30,6 @@ FILES = malloc.c \
 		calloc.c \
 		reallocf.c
 
-
 OBJS = $(patsubst %.c, $(DIR_OBJ)%.o, $(FILES)) $(patsubst %.c, $(DIR_OBJ)%.o, $(MAIN))
 
 DEP_OBJ = src_msg \
@@ -39,6 +38,9 @@ DEP_OBJ = src_msg \
 RM = /bin/rm -rf
 
 all: $(NAME)
+
+debug: CFLAGS += -g3
+debug: all
 
 $(NAME): mkdirobj $(DEP_OBJ)
 		@ $(shell ln -s $(NAME) $(LIEN))

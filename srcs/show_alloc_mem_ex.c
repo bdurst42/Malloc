@@ -3,7 +3,7 @@
 static void		init_infos(t_infos *infos)
 {
 	infos->total_used_memory = 0;
-	infos->total_unused_memory = 36;
+	infos->total_unused_memory = 0;
 	infos->total_structs_memory = 0;
 }
 
@@ -24,6 +24,13 @@ static void 	print_infos_pool(t_infos *infos, char activate, char *str)
 		ft_putnbr(infos->nb_pools);
 	ft_putstr(": ");
 	ft_putnbr(infos->total_used_memory);
+	ft_putchar('\n');
+	ft_putstr("\tnb of unused bytes in ");
+	ft_putstr(str);
+	if (activate)
+			ft_putnbr(infos->nb_pools);
+	ft_putstr(": ");
+	ft_putnbr(infos->total_unused_memory);
 	ft_putchar('\n');
 	if (total)
 	{
@@ -62,15 +69,15 @@ static void 	print_infos(t_block *start)
 		if (!IS_FREE(block))
 		{
 			infos_all_pools.total_used_memory += block->size;
-			infos_all_pools.total_structs_memory += BLOCK_SIZE;
 			infos_pool.total_used_memory += block->size;
-			infos_pool.total_structs_memory += BLOCK_SIZE;
 		}
 		else
 		{
 			infos_pool.total_unused_memory += block->size;
 			infos_all_pools.total_unused_memory += block->size;
 		}
+		infos_pool.total_structs_memory += BLOCK_SIZE;
+		infos_all_pools.total_structs_memory += BLOCK_SIZE;
 		block = block->next;
 	}
 	print_infos_pool(&infos_pool, 1, "pool ");

@@ -22,28 +22,10 @@ void	copy_block(t_block *block, t_block *newblock)
 {
 	size_t	i;
 
-	ft_putstr("^^^^^^^^^^^^^^^^^^^ block : \n");
-	ft_puthexa((unsigned long)block, 16, "0123456789 ABCDEF");
-	ft_putstr("\n");
-	ft_putstr("size = ");
-	ft_putnbr(block->size);
-	ft_putstr("\n");
-	ft_putstr("flag = ");
-	ft_putnbr(block->flag);
-	ft_putstr("\n");
 	malloc_debug(SUCCES, "Realloc : ", "Copy");
 	i = -1;
 	while (++i < block->size && i < newblock->size)
 		newblock->data[i] = block->data[i];
-	ft_putstr("newblock : \n");
-	ft_puthexa((unsigned long)newblock, 16, "0123456789 ABCDEF");
-	ft_putstr("\n");
-	ft_putstr("size = ");
-	ft_putnbr(newblock->size);
-	ft_putstr("\n");
-	ft_putstr("flag = ");
-	ft_putnbr(newblock->flag);
-	ft_putstr(" ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
 }
 
 void	*new_alloc(t_block *block, size_t size)
@@ -61,18 +43,6 @@ void	*new_alloc(t_block *block, size_t size)
 	newblock = (t_block*)(new_ptr - BLOCK_SIZE);
 	copy_block(block, newblock);
 	free(block->data);
-	ft_putstr("&&&&&&&&&&&&&&& newblock : \n");
-	ft_puthexa((unsigned long)newblock, 16, "0123456789 ABCDEF");
-	ft_putstr("\n");
-	ft_putstr("size = ");
-	ft_putnbr(newblock->size);
-	ft_putstr("\n");
-	ft_putstr("flag = ");
-	ft_putnbr(newblock->flag);
-	ft_putstr(" &&&&&&&&&&&&&&&&&&&\n");
-	ft_putstr("env tiny : \n");
-	ft_puthexa((unsigned long)env.tiny, 16, "0123456789 ABCDEF");
-	ft_putstr("\n");
 	return (newblock->data);
 }
 
@@ -83,9 +53,6 @@ void	*realloc(void *ptr, size_t size)
 	size_t	align_size;
 
 	merge = 0;
-	ft_putstr("\nSTART psize = ");
-	ft_putnbr(size);
-	ft_putstr("\n");
 	malloc_debug(HEADER, "-- REALLOC --", "");
 	if (!ptr)
 	{
@@ -98,16 +65,13 @@ void	*realloc(void *ptr, size_t size)
 	if (block && block->data == block->ptr)
 	{
 		size = ALIGN4(size);
+	// 	ft_putstr("REALLOC after ALIGN size = ");
+	// ft_putnbr(size);
+	// ft_putstr("\n");
 		if (size > MAX_SMALL && !IS_CANT_SPLIT(block) && (size + 36) % getpagesize())
 			align_size = ((size + 36) / getpagesize() + 1) * getpagesize() - 36;
 		else
 			align_size = size;
-		ft_putstr("!!!!!!!!!\n");
-		ft_putstr("block->size = ");
-		ft_putnbr(block->size);
-		ft_putstr(" || align_size = ");
-		ft_putnbr(align_size);
-		ft_putstr("\n!!!!!!!!!\n");
 		if (block->size == align_size)
 		{
 			malloc_debug(SUCCES, "Realloc : ", "Same size when we align at 4");
