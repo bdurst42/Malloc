@@ -1,5 +1,6 @@
-#define NULL 0
-/*
+#include "malloc.h"
+
+
 void	*ft_memset(void *b, int c, size_t len)
 {
 	char	*s;
@@ -18,7 +19,7 @@ void	*ft_memset(void *b, int c, size_t len)
 	}
 	return (b);
 }
-*/
+
 
 void rand_test(int len, int x_max)
 {
@@ -37,13 +38,13 @@ void rand_test(int len, int x_max)
         tab[i] = (char *)malloc(sizeof(char) * (rdm + 1));
         if (!tab[i])
             ft_putstr("MALLOC RETURN NULL ERROR\n");
-        // tab[i] = ft_memset(tab[i], 'x', rdm);
-        // tab[i][0] -= 32;
-        // tab[i][rdm - 1] = '|';
-        // tab[i][rdm] = '\0';
+        tab[i] = ft_memset(tab[i], 'x', rdm);
+        tab[i][0] -= 32;
+        tab[i][rdm - 1] = '|';
+        tab[i][rdm] = '\0';
         i++;
     }
-    show_alloc_mem_ex();
+    // show_alloc_mem_ex();
     /*i = 0;*/
     i--;
     // show_alloc_mem();
@@ -75,31 +76,34 @@ void rand_test(int len, int x_max)
     //     // show_alloc_mem();  
     // free(tab);
     // }
+
+    // ft_putstr("block : \n");
+    // ft_puthexa((unsigned long)block->data, 16, "0123456789 ABCDEF");
+    // ft_putstr("\n");
+    // ft_putstr("size = ");
+    // ft_putnbr(block->size);
+    // ft_putstr("\n");
+    // ft_putstr("flag = ");
+    // ft_putnbr(block->flag);
+    // ft_putstr("\n");
 }
 
 void test(void)
 {
-    char    *tab;
+    t_block block;
 
-    tab = malloc(8);
-    malloc(16);
-    free(tab);
-    malloc(16);
-    malloc(32);
-    malloc(32);
-    malloc(32);
-    calloc(64, 1);
-    calloc(64, 1);
-    calloc(64, 1);
-    calloc(64, 1);
-    calloc(64, 1);
-    tab = calloc(64, 1);
-    ft_putstr(tab);
+    block.flag |= FLAG_CANT_SPLIT;
+    ft_putnbr(IS_CANT_SPLIT(&block));
+    ft_putstr("\n");
+    block.flag &= (0 << 2);
+    ft_putnbr(IS_CANT_SPLIT(&block));
+    ft_putstr("\n");
+
 }
 
 int main(void)
 {
-   rand_test(1000, 2000);
+   rand_test(100000, 10000);
     show_alloc_mem();
     // test();
     return (0);

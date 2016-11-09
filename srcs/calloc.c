@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   calloc.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2016/11/09 00:58:47 by bdurst            #+#    #+#             */
+/*   Updated: 2016/11/09 01:38:33 by bdurst           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "malloc.h"
 
 void	*calloc(unsigned long number, unsigned long size)
@@ -8,34 +20,20 @@ void	*calloc(unsigned long number, unsigned long size)
 
 	i = 0;
 	malloc_debug(HEADER, "-- CALLOC --", "");
-	// ft_putstr("size = ");
-	// 	ft_putnbr(size);
-	// 	ft_putstr("\nnumber = ");
-	// 	ft_putnbr(number);
-	// 	ft_putstr("\n");
-	// pthread_mutex_lock(&thread_safe.mutex_calloc);
+	pthread_mutex_lock(&g_thread_safe.mutex_calloc);
 	if (!number || !size)
 	{
 		malloc_debug(ERROR, "Calloc failed : ", "number or size are null");
-		// pthread_mutex_unlock(&thread_safe.mutex_calloc);
-		return (NULL);
+		return (unlock_fct_with_return(NULL, &g_thread_safe.mutex_calloc));
 	}
 	new = malloc(number * size);
 	if (new)
 	{
 		block = (t_block*)(new - BLOCK_SIZE);
-		// ft_putstr("Block->size = ");
-		// ft_putnbr(block->size);
-		// ft_putstr("\n");
 		malloc_debug(SUCCES, "Calloc : ", "Fill allocation");
-		// ft_putstr("calloc size -> ");
-		// ft_putnbr(size);
-		// ft_putstr("\n");
-		// size /= `sizeof(new);
 		while (i < block->size)
-		 	new[i++] = 0;
+			new[i++] = 0;
 		malloc_debug(SUCCES, "Calloc : ", "Succes !");
 	}
-	// pthread_mutex_unlock(&thread_safe.mutex_calloc);
-	return (new);
+	return (unlock_fct_with_return(new, &g_thread_safe.mutex_calloc));
 }

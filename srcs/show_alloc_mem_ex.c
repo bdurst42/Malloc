@@ -1,96 +1,99 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   show_alloc_mem_ex.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2016/11/09 01:46:36 by bdurst            #+#    #+#             */
+/*   Updated: 2016/11/09 02:46:07 by bdurst           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "malloc.h"
 
-static void		init_infos(t_infos *infos)
+static void	init_infos(t_infos *infos)
 {
-	infos->total_used_memory = 0;
-	infos->total_unused_memory = 0;
-	infos->total_structs_memory = 0;
+	infos->tt_used_mem = 0;
+	infos->tt_unused_mem = 0;
+	infos->tt_structs_mem = 0;
 }
 
-static void 	print_infos_pool(t_infos *infos, char activate, char *str)
+static void	print_infos_pool(t_infos *infos, char activate, char *str)
 {
-	unsigned long total;
+	unsigned long tt;
 
-	total = infos->total_unused_memory + infos->total_structs_memory + infos->total_used_memory;
+	tt = infos->tt_unused_mem + infos->tt_structs_mem + infos->tt_used_mem;
 	if (!activate)
 	{
 		ft_putstr("\tnb of pools = ");
 		ft_putnbr(infos->nb_pools);
 		ft_putchar('\n');
 	}
-	ft_putstr("\tnb of allocate bytes in ");
-	ft_putstr(str);
-	if (activate)
-		ft_putnbr(infos->nb_pools);
-	ft_putstr(": ");
-	ft_putnbr(infos->total_used_memory);
-	ft_putchar('\n');
-	ft_putstr("\tnb of unused bytes in ");
-	ft_putstr(str);
-	if (activate)
-			ft_putnbr(infos->nb_pools);
-	ft_putstr(": ");
-	ft_putnbr(infos->total_unused_memory);
-	ft_putchar('\n');
-	if (total)
+	print_info_bytes(str, infos, activate);
+	if (tt)
 	{
 		ft_putstr("\tnb of allocate bytes in ");
 		ft_putstr(str);
 		if (activate)
 			ft_putnbr(infos->nb_pools);
 		ft_putstr(" with structs: ");
-		ft_putnbr(infos->total_structs_memory + infos->total_used_memory);
+		ft_putnbr(infos->tt_structs_mem + infos->tt_used_mem);
 		ft_putstr(" / ");
-		ft_putnbr(total);
+		ft_putnbr(tt);
 		ft_putstr(" = ");
-		ft_putnbr((infos->total_structs_memory + infos->total_used_memory) * 100 / total);
+		ft_putnbr((infos->tt_structs_mem + infos->tt_used_mem) * 100 / tt);
 		ft_putstr("%\n\n");
 	}
 	init_infos(infos);
 }
 
-static void 	print_infos(t_block *start)
+static void	add_to_tt(t_infos *infos_all_pools, t_infos *infos_pool)
+{
+	infos_all_pools->tt_used_mem += infos_pool->tt_used_mem;
+	infos_all_pools->tt_unused_mem += infos_pool->tt_unused_mem;
+	infos_all_pools->tt_structs_mem += infos_pool->tt_structs_mem;
+}
+
+static void	print_infos(t_block *start, t_infos *infos_all_pools,
+						t_infos *infos_pool)
 {
 	t_block			*block;
-	t_infos			infos_all_pools;
-	t_infos			infos_pool;
 
-	init_infos(&infos_all_pools);
-	init_infos(&infos_pool);
-	infos_pool.nb_pools = 1;
 	block = start;
 	while (block)
 	{
 		if (IS_START_HEAP(block))
 		{
-			print_infos_pool(&infos_pool, 1, "pool ");
-			++infos_pool.nb_pools;
+			add_to_tt(infos_all_pools, infos_pool);
+			print_infos_pool(infos_pool, 1, "pool ");
+			++infos_pool->nb_pools;
 		}
 		if (!IS_FREE(block))
-		{
-			infos_all_pools.total_used_memory += block->size;
-			infos_pool.total_used_memory += block->size;
-		}
+			infos_pool->tt_used_mem += block->size;
 		else
-		{
-			infos_pool.total_unused_memory += block->size;
-			infos_all_pools.total_unused_memory += block->size;
-		}
-		infos_pool.total_structs_memory += BLOCK_SIZE;
-		infos_all_pools.total_structs_memory += BLOCK_SIZE;
+			infos_pool->tt_unused_mem += block->size;
+		infos_pool->tt_structs_mem += BLOCK_SIZE;
 		block = block->next;
 	}
-	print_infos_pool(&infos_pool, 1, "pool ");
-	infos_all_pools.nb_pools = infos_pool.nb_pools;
-	print_infos_pool(&infos_all_pools, 0, "all pools");
+	add_to_tt(infos_all_pools, infos_pool);
+	print_infos_pool(infos_pool, 1, "pool ");
+	infos_all_pools->nb_pools = infos_pool->nb_pools;
+	print_infos_pool(infos_all_pools, 0, "all pools");
 }
 
-void	show_alloc_mem_ex(void)
+void		show_alloc_mem_ex(void)
 {
-	// pthread_mutex_lock(&thread_safe.mutex_show_alloc_mem_ex);
+	t_infos			infos_all_pools;
+	t_infos			infos_pool;
+
+	pthread_mutex_lock(&g_thread_safe.mutex_show_alloc_mem_ex);
+	init_infos(&infos_all_pools);
+	init_infos(&infos_pool);
+	infos_pool.nb_pools = 1;
 	ft_putstr("TINY: \n");
-	print_infos(env.tiny);
+	print_infos(g_env.tiny, &infos_all_pools, &infos_pool);
 	ft_putstr("SMALL: \n");
-	print_infos(env.small);
-	// pthread_mutex_unlock(&thread_safe.mutex_show_alloc_mem_ex);
+	print_infos(g_env.small, &infos_all_pools, &infos_pool);
+	pthread_mutex_unlock(&g_thread_safe.mutex_show_alloc_mem_ex);
 }

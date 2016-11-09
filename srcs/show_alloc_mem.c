@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   show_alloc_mem.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2016/11/09 01:45:00 by bdurst            #+#    #+#             */
+/*   Updated: 2016/11/09 01:45:47 by bdurst           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "malloc.h"
 
-static void display_mem_of_block(void *data, size_t size)
+static void	display_mem_of_block(void *data, size_t size)
 {
 	ft_putstr("0x");
 	ft_puthexa((unsigned long)data, 16, "0123456789ABCDEF");
@@ -31,17 +43,17 @@ static void	foreach_block(t_block *start, char *str, unsigned long *total)
 	}
 }
 
-void show_alloc_mem(void)
+void		show_alloc_mem(void)
 {
 	unsigned long	total;
 
 	total = 0;
-	// pthread_mutex_lock(&thread_safe.mutex_show_alloc_mem);
-	foreach_block(env.tiny, "TINY", &total);
-	foreach_block(env.small, "SMALL", &total);
-	foreach_block(env.large, "LARGE", &total);
+	pthread_mutex_lock(&g_thread_safe.mutex_show_alloc_mem);
+	foreach_block(g_env.tiny, "TINY", &total);
+	foreach_block(g_env.small, "SMALL", &total);
+	foreach_block(g_env.large, "LARGE", &total);
 	ft_putstr("Total: ");
 	ft_putnbr(total);
 	ft_putchar('\n');
-	// pthread_mutex_unlock(&thread_safe.mutex_show_alloc_mem);
+	pthread_mutex_unlock(&g_thread_safe.mutex_show_alloc_mem);
 }

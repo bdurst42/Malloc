@@ -1,21 +1,32 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   malloc.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2016/11/09 01:32:02 by bdurst            #+#    #+#             */
+/*   Updated: 2016/11/09 03:39:36 by bdurst           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MALLOC_H
 # define MALLOC_H
 
-#include <sys/mman.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <stdlib.h>
-#		include <stdio.h>
+# include <sys/mman.h>
+# include <unistd.h>
+# include <pthread.h>
+# include <stdlib.h>
 
 # define BLOCK_SIZE 		(3 * sizeof(void *) + sizeof(size_t) + sizeof(int))
 # define MAX_TINY			16
 # define MAX_SMALL			1024
-# define POOL_SIZE			128
+# define PSZ				128
 
-# define ERROR			"\033[0;31m"
-# define SUCCES			"\033[0;32m"
-# define HEADER			"\033[0;34m"
-# define END			"\033[0m"
+# define ERROR				"\033[0;31m"
+# define SUCCES				"\033[0;32m"
+# define HEADER				"\033[0;34m"
+# define END				"\033[0m"
 
 # define FLAG_FREE			(1 << 0)
 # define FLAG_START_HEAP	(1 << 1)
@@ -38,20 +49,20 @@ typedef struct		s_block
 
 typedef struct		s_infos
 {
-	unsigned long 	total_used_memory;
-	unsigned long 	total_unused_memory;
-	unsigned long 	total_structs_memory;
+	unsigned long	tt_used_mem;
+	unsigned long	tt_unused_mem;
+	unsigned long	tt_structs_mem;
 	int				nb_pools;
 }					t_infos;
 
-typedef struct		s_env
+typedef struct		s_g_env
 {
 	t_block			*tiny;
 	t_block			*small;
 	t_block			*large;
 }					t_env;
 
-typedef struct		s_thread_safe
+typedef struct		s_g_thread_safe
 {
 	pthread_mutex_t	mutex_malloc;
 	pthread_mutex_t	mutex_calloc;
@@ -61,8 +72,8 @@ typedef struct		s_thread_safe
 	pthread_mutex_t	mutex_show_alloc_mem_ex;
 }					t_thread_safe;
 
-extern t_env	env;
-extern t_thread_safe thread_safe;
+extern t_env			g_env;
+extern t_thread_safe	g_thread_safe;
 
 void				*malloc(size_t size);
 void				*calloc(size_t number, size_t size);
@@ -70,12 +81,17 @@ void				free(void *ptr);
 void				*realloc(void *ptr, size_t size);
 void				*reallocf(void *p, size_t size);
 t_block				*split_block(t_block *block, size_t size, char src);
+t_block				*fill_block(t_block *b, size_t size);
+t_block				*allocate_first_block(size_t size);
+t_block				*allocate_with_mmap(size_t size, char *name);
 void				show_alloc_mem(void);
 void				show_alloc_mem_ex(void);
-void   				ft_putnbr(int n);
+void				ft_putnbr(int n);
 void				ft_putchar(char c);
 void				ft_putstr(char const *str);
-void    			ft_puthexa(unsigned long n, size_t nbase, char *base);
+void				ft_puthexa(unsigned long n, size_t nbase, char *base);
 void				malloc_debug(char *color, char *fct, char *str);
+void				*unlock_fct_with_return(void *ptr, pthread_mutex_t *mutex);
+void				print_info_bytes(char *str, t_infos *infos, char activate);
 
 #endif

@@ -1,24 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_go_end_list.c                                   :+:      :+:    :+:   */
+/*   thread_fcts.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bdurst <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2014/11/27 16:02:02 by bdurst            #+#    #+#             */
-/*   Updated: 2014/12/12 17:15:29 by bdurst           ###   ########.fr       */
+/*   Created: 2016/11/09 01:14:17 by bdurst            #+#    #+#             */
+/*   Updated: 2016/11/09 02:26:35 by bdurst           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "list.h"
+#include "malloc.h"
 
-t_list	*ft_go_end_list(t_list *node)
+void	*unlock_fct_with_return(void *ptr, pthread_mutex_t *mutex)
 {
-	if (node)
-	{
-		while (node->next)
-			node = node->next;
-		return (node);
-	}
-	return (NULL);
+	pthread_mutex_unlock(mutex);
+	return (ptr);
 }

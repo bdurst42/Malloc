@@ -1,105 +1,97 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   free.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2016/11/09 02:31:59 by bdurst            #+#    #+#             */
+/*   Updated: 2016/11/09 17:51:53 by bdurst           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "malloc.h"
 
-static t_block	*merge_blocks(t_block *block)
+static t_block	*merge_bs(t_block *b)
 {
-	malloc_debug(SUCCES, "Free : ", "Merge blocks");
-	while (!IS_START_HEAP(block) && block->prev && IS_FREE(block->prev))
-		block = block->prev;
-	while (block->next && IS_FREE(block->next) && !IS_START_HEAP(block->next))
+	malloc_debug(SUCCES, "Free : ", "Merge bs");
+	while (!IS_START_HEAP(b) && b->prev && IS_FREE(b->prev))
+		b = b->prev;
+	while (b->next && IS_FREE(b->next) && !IS_START_HEAP(b->next))
 	{
-		block->size += BLOCK_SIZE + block->next->size;
-		block->next = block->next->next;
+		b->size += BLOCK_SIZE + b->next->size;
+		b->next = b->next->next;
 	}
-	if (block->next)
-		block->next->prev = block;
-	return (block);
+	if (b->next)
+		b->next->prev = b;
+	return (b);
 }
 
-static void	pop_block(t_block *block, size_t size)
+static void		pop_b(t_block *b, size_t size)
 {
-	malloc_debug(SUCCES, "Free : ", "Pop block");
-	if (block->prev)
-		block->prev->next = block->next;
-	if (block->next)
+	malloc_debug(SUCCES, "Free : ", "Pop b");
+	if (b->prev)
+		b->prev->next = b->next;
+	if (b->next)
 	{
-
-		if ((size > MAX_SMALL && !IS_CANT_SPLIT(block)) && !block->prev)
-			env.large = block->next;
-		block->next->prev = block->prev;
+		if ((size > MAX_SMALL && !IS_CANT_SPLIT(b)) && !b->prev)
+			g_env.large = b->next;
+		b->next->prev = b->prev;
 	}
 }
 
-static char	desallocate_block(t_block *block)
+static char		desallocate_b(t_block *b, size_t size)
 {
-	size_t size;
-
-	size = block->size;
-	block->flag |= FLAG_FREE;
-	if (size <= MAX_SMALL || IS_CANT_SPLIT(block))
-		block = merge_blocks(block);
-	if ((IS_START_HEAP(block) && !block->next && !getenv("DONT_FREE_ADDED_POOL")) || (size > MAX_SMALL && !IS_CANT_SPLIT(block)))
+	b->flag |= FLAG_FREE;
+	if (size <= MAX_SMALL || IS_CANT_SPLIT(b))
+		b = merge_bs(b);
+	if ((IS_START_HEAP(b) && !b->next && !getenv("DONT_FREE_ADD_POOL"))
+		|| (size > MAX_SMALL && !IS_CANT_SPLIT(b)))
 	{
-		pop_block(block, size);
-		if ((size > MAX_SMALL && !IS_CANT_SPLIT(block)) && !block->prev && !block->next)
+		pop_b(b, size);
+		if ((size > MAX_SMALL && !IS_CANT_SPLIT(b)) && !b->prev && !b->next)
 		{
 			malloc_debug(SUCCES, "Free : ", "Reset LARGE");
-			env.large = NULL;
+			g_env.large = NULL;
 		}
-		if (munmap(block, block->size + BLOCK_SIZE) == -1)
+		if (munmap(b, b->size + BLOCK_SIZE) == -1)
 		{
-			ft_putstr("munmap fail\n");
-			ft_puthexa((unsigned long)block, 16, "0123456789ABCDEF");
-			ft_putstr("\nNEXT = \n");
-			ft_puthexa((unsigned long)block->next, 16, "0123456789ABCDEF");
-			ft_putstr("\nflag = \n");
-			ft_putnbr(block->flag);
-			ft_putstr("\nsize = ");
-			ft_putnbr(block->size);
-			ft_putstr("\n");
-			// show_alloc_mem();
 			malloc_debug(ERROR, "Free : ", "MUNMAP failed");
 			return (0);
 		}
-		block = NULL;
+		b = NULL;
 		malloc_debug(SUCCES, "Free : ", "MUNMAP");
 	}
-	else if (IS_CANT_SPLIT(block))
-		block->flag ^= FLAG_CANT_SPLIT;
+	else if (IS_CANT_SPLIT(b))
+		b->flag ^= FLAG_CANT_SPLIT;
 	return (1);
 }
 
-void	free(void *ptr)
+void			free(void *ptr)
 {
-	t_block *block;
+	t_block	*b;
 	char	*str;
 
 	malloc_debug(HEADER, "-- FREE --", "");
-	// pthread_mutex_lock(&thread_safe.mutex_free);
-	// ft_putstr("free addr : \n");
-	// ft_puthexa((unsigned long)ptr, 16, "0123456789 ABCDEF");
-	// ft_putstr("\n");
+	pthread_mutex_lock(&g_thread_safe.mutex_free);
 	if (!ptr)
-	{
 		malloc_debug(ERROR, "Free : ", "NULL ptr");
-		ft_putstr("NULL\n");
-		return ;
-	}
-	block = (t_block*)(ptr - BLOCK_SIZE);
-	if (block && !IS_FREE(block) && block->data == block->ptr)
+	else
 	{
-		if (block->size > MAX_SMALL && !IS_CANT_SPLIT(block))
-			str = "Free LARGE : ";
-		else
-			str = "Free TINY or SMALL : ";
-		if (desallocate_block(block))
-			malloc_debug(SUCCES, str, "Succes !");
+		b = (t_block*)(ptr - BLOCK_SIZE);
+		if (b && !IS_FREE(b) && b->data == b->ptr)
+		{
+			if (b->size > MAX_SMALL && !IS_CANT_SPLIT(b))
+				str = "Free LARGE : ";
+			else
+				str = "Free TINY or SMALL : ";
+			if (desallocate_b(b, b->size))
+				malloc_debug(SUCCES, str, "Succes !");
+			else
+				malloc_debug(ERROR, "Free : ", "failed");
+		}
 		else
 			malloc_debug(ERROR, "Free : ", "failed");
 	}
-	else
-	{
-		// ft_putstr("BAD\n");
-		malloc_debug(ERROR, "Free : ", "failed");
-	}
-	// pthread_mutex_unlock(&thread_safe.mutex_free);
+	pthread_mutex_unlock(&g_thread_safe.mutex_free);
 }
