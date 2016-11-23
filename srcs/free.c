@@ -6,7 +6,7 @@
 /*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/09 02:31:59 by bdurst            #+#    #+#             */
-/*   Updated: 2016/11/23 04:46:05 by bdurst           ###   ########.fr       */
+/*   Updated: 2016/11/23 08:01:20 by bdurst           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,10 +91,7 @@ void			free(void *ptr)
 	else
 	{
 		b = (t_block*)(ptr - BLOCK_SIZE);
-		ft_putstr("addr = ");
-		ft_puthexa((unsigned long)ptr, 16, "0123456789123456789abcdef");
-		ft_putstr("\n");
-		if ((use_block(g_env.tiny, b) || use_block(g_env.small, b) || use_block(g_env.large, b)) && !IS_FREE(b))
+		if ((EXIST_BLOCK) && !IS_FREE(b))
 		{
 			if (b->size > MAX_SMALL && !IS_CANT_SPLIT(b))
 				str = "Free LARGE : ";

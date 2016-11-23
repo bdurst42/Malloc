@@ -6,7 +6,7 @@
 /*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/09 01:32:02 by bdurst            #+#    #+#             */
-/*   Updated: 2016/11/23 04:49:02 by bdurst           ###   ########.fr       */
+/*   Updated: 2016/11/23 07:58:59 by bdurst           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,10 @@
 # define MAX_SMALL			1024
 # define PSZ				128
 
-// # define ERROR				"\033[0;31m"
-// # define SUCCES				"\033[0;32m"
-// # define HEADER				"\033[0;34m"
-// # define END				"\033[0m"
-# define ERROR	""
-# define SUCCES	""
-# define HEADER	""
-# define END ""
+# define ERROR				"\033[0;31m"
+# define SUCCES				"\033[0;32m"
+# define HEADER				"\033[0;34m"
+# define END				"\033[0m"
 
 # define FLAG_FREE			(1 << 0)
 # define FLAG_START_HEAP	(1 << 1)
@@ -76,7 +72,7 @@ typedef struct		s_g_thread_safe
 	pthread_mutex_t	mutex_show_alloc_mem_ex;
 }					t_thread_safe;
 
-		t_env			g_env;
+t_env					g_env;
 extern	t_thread_safe	g_thread_safe;
 
 void				*malloc(size_t size);

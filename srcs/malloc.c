@@ -6,7 +6,7 @@
 /*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/09 02:42:59 by bdurst            #+#    #+#             */
-/*   Updated: 2016/11/23 04:46:36 by bdurst           ###   ########.fr       */
+/*   Updated: 2016/11/23 07:40:24 by bdurst           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,9 +103,6 @@ void			*malloc(size_t size)
 	if (b)
 	{
 		malloc_debug(SUCCES, "Malloc : ", "Malloc succes !");
-		ft_putstr("block = ");
-		ft_puthexa((unsigned long)((void*)b + BLOCK_SIZE), 16, "0123456789123456789abcdef");
-		ft_putstr("\n");
 		return ((void*)b + BLOCK_SIZE);
 	}
 	malloc_debug(ERROR, "Malloc : ", "Malloc failed : b null");
