@@ -23,59 +23,56 @@ void	*ft_memset(void *b, int c, size_t len)
 
 void rand_test(int len, int x_max)
 {
-    char **tab;
-    int i = 0;
-    int rdm;
+    // char **tab;
+    // int i = 0;
+    // int rdm;
 
     // ft_putnbr((len + 1) * sizeof(char *));
     // ft_putstr("\n");
-    tab = (char **)malloc(sizeof(char *) * (len + 1));
-    tab[len] = NULL;
-    srand(time(NULL));
-    while (i < len)
-    {
-        rdm = (rand() % x_max);
-        tab[i] = (char *)malloc(sizeof(char) * (rdm + 1));
-        if (!tab[i])
-            ft_putstr("MALLOC RETURN NULL ERROR\n");
-        tab[i] = ft_memset(tab[i], 'x', rdm);
-        tab[i][0] -= 32;
-        tab[i][rdm - 1] = '|';
-        tab[i][rdm] = '\0';
-        i++;
-    }
-    // show_alloc_mem_ex();
-    /*i = 0;*/
-    i--;
-    // show_alloc_mem();
-    while (i >= 0)
-    {
-        free(tab[i--]);
-    	// show_alloc_mem();
-    }
-    free(tab);
-    // t_block *block;
-    // char    *tab = NULL;
-    // int i = -1;
-    // int rdm;
-    // int rdm2;
-
-    // while (++i < len)
+    // tab = (char **)malloc(sizeof(char *) * (len + 1));
+    // tab[len] = NULL;
+    // srand(time(NULL));
+    // while (i < len)
     // {
-    //     rdm = (rand() % x_max) + 1;
-    //     rdm2 = (rand() % x_max) + 1;
-    //    tab = calloc(rdm2, rdm);
-    //     if (!tab)
-    //     {
+    //     rdm = (rand() % x_max);
+    //     tab[i] = (char *)malloc(sizeof(char) * (rdm + 1));
+    //     if (!tab[i])
     //         ft_putstr("MALLOC RETURN NULL ERROR\n");
-    //         exit(0);
-    //     }
-    //     int j = 0;
-    //     while (tab[j])
-    //         ++j;
-    //     // show_alloc_mem();  
-    // free(tab);
+    //     tab[i] = ft_memset(tab[i], 'x', rdm);
+    //     tab[i][0] -= 32;
+    //     tab[i][rdm - 1] = '|';
+    //     tab[i][rdm] = '\0';
+    //     i++;
     // }
+    // // show_alloc_mem_ex();
+    // /*i = 0;*/
+    // i--;
+    // // show_alloc_mem();
+    // while (i >= 0)
+    // {
+    //     free(tab[i--]);
+    // 	// show_alloc_mem();
+    // }
+    // free(tab);
+    t_block *block;
+    char    *tab = NULL;
+    int i = -1;
+    int rdm;
+    int rdm2;
+
+    while (++i < len)
+    {
+        rdm = (rand() % x_max) + 1;
+        rdm2 = (rand() % x_max) + 1;
+       tab = calloc(rdm2, rdm);
+        if (!tab)
+        {
+            ft_putstr("MALLOC RETURN NULL ERROR\n");
+            exit(0);
+        }
+        // show_alloc_mem();  
+    free(tab);
+    }
 
     // ft_putstr("block : \n");
     // ft_puthexa((unsigned long)block->data, 16, "0123456789 ABCDEF");
@@ -103,7 +100,7 @@ void test(void)
 
 int main(void)
 {
-   rand_test(100000, 10000);
+   rand_test(100, 10);
     show_alloc_mem();
     // test();
     return (0);

@@ -6,7 +6,7 @@
 /*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/09 03:28:11 by bdurst            #+#    #+#             */
-/*   Updated: 2016/11/09 17:55:21 by bdurst           ###   ########.fr       */
+/*   Updated: 2016/11/23 01:15:56 by bdurst           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ static t_block	*allocate_large(t_block *newb, t_block *b, size_t size,
 static t_block	*split_tiny_small(t_block *b, t_block *newb,
 	size_t size, char src)
 {
-	newb = (void*)b->data + size;
+	newb = (void*)b + BLOCK_SIZE + size;
 	newb->size = b->size - size - BLOCK_SIZE;
 	newb->flag |= FLAG_FREE;
 	if (src == 1 && b->next && IS_FREE(b->next) && !IS_START_HEAP(b->next))
@@ -107,9 +107,6 @@ t_block			*fill_block(t_block *b, size_t size)
 	else
 		b->flag |= FLAG_CANT_SPLIT;
 	if (b)
-	{
-		b->ptr = b->data;
 		b->flag ^= FLAG_FREE;
-	}
 	return (b);
 }

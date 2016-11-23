@@ -6,7 +6,7 @@
 /*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/09 01:45:00 by bdurst            #+#    #+#             */
-/*   Updated: 2016/11/09 01:45:47 by bdurst           ###   ########.fr       */
+/*   Updated: 2016/11/23 01:06:33 by bdurst           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 static void	display_mem_of_block(void *data, size_t size)
 {
 	ft_putstr("0x");
-	ft_puthexa((unsigned long)data, 16, "0123456789ABCDEF");
+	ft_puthexa((unsigned long)data, 16, "0123456789abcdef");
 	ft_putstr(" - 0x");
 	ft_puthexa((unsigned long)data + size, 16, "0123456789ABCDEF");
 	ft_putstr(" : ");
@@ -36,7 +36,7 @@ static void	foreach_block(t_block *start, char *str, unsigned long *total)
 	{
 		if (!IS_FREE(block))
 		{
-			display_mem_of_block(block->data, block->size);
+			display_mem_of_block((void*)block + BLOCK_SIZE, block->size);
 			*total += block->size;
 		}
 		block = block->next;

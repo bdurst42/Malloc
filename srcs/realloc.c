@@ -6,7 +6,7 @@
 /*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/09 01:23:22 by bdurst            #+#    #+#             */
-/*   Updated: 2016/11/09 17:21:49 by bdurst           ###   ########.fr       */
+/*   Updated: 2016/11/23 03:22:07 by bdurst           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,8 @@ static void	copy_block(t_block *block, t_block *newblock)
 	malloc_debug(SUCCES, "Realloc : ", "Copy");
 	i = -1;
 	while (++i < block->size && i < newblock->size)
-		newblock->data[i] = block->data[i];
+		*(char*)((void*)newblock + BLOCK_SIZE + i) =
+		*(char*)((void*)block + BLOCK_SIZE + i);
 }
 
 static void	*new_alloc(t_block *block, size_t size)
@@ -54,8 +55,8 @@ static void	*new_alloc(t_block *block, size_t size)
 	}
 	newblock = (t_block*)(new_ptr - BLOCK_SIZE);
 	copy_block(block, newblock);
-	free(block->data);
-	return (newblock->data);
+	free((void*)block + BLOCK_SIZE);
+	return ((void*)newblock + BLOCK_SIZE);
 }
 
 static void	*find_good_way_to_realloc(t_block *block, size_t size, char merge,
@@ -70,7 +71,7 @@ static void	*find_good_way_to_realloc(t_block *block, size_t size, char merge,
 	if (block->size == align_size)
 	{
 		malloc_debug(SUCCES, "Realloc : ", "Same size when we align at 4");
-		return (block + BLOCK_SIZE);
+		return ((void*)block + BLOCK_SIZE);
 	}
 	if ((size <= MAX_TINY && (block->size <= MAX_TINY || (IS_CANT_SPLIT(block)
 		&& block->size <= MAX_SMALL))) || (size <= MAX_SMALL && size > MAX_TINY
@@ -84,12 +85,13 @@ static void	*find_good_way_to_realloc(t_block *block, size_t size, char merge,
 	}
 	else if (!merge)
 		return (new_alloc(block, size));
-	return (block->data);
+	show_alloc_mem();
+	return ((void*)block + BLOCK_SIZE);
 }
 
 void		*realloc(void *ptr, size_t size)
 {
-	t_block *block;
+	t_block *b;
 	char	merge;
 	size_t	align_size;
 
@@ -103,12 +105,12 @@ void		*realloc(void *ptr, size_t size)
 		return (unlock_fct_with_return(malloc(size),
 				&g_thread_safe.mutex_realloc));
 	}
-	block = (t_block*)(ptr - BLOCK_SIZE);
-	if (block && block->data == block->ptr)
+	b = (t_block*)(ptr - BLOCK_SIZE);
+	if (EXIST_BLOCK)
 	{
 		size = ALIGN4(size);
 		return (unlock_fct_with_return(
-		find_good_way_to_realloc(block, size, merge, align_size),
+		find_good_way_to_realloc(b, size, merge, align_size),
 		&g_thread_safe.mutex_realloc));
 	}
 	malloc_debug(ERROR, "Realloc : ", "failed :(");

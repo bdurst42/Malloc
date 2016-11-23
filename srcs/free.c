@@ -6,7 +6,7 @@
 /*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/09 02:31:59 by bdurst            #+#    #+#             */
-/*   Updated: 2016/11/09 17:51:53 by bdurst           ###   ########.fr       */
+/*   Updated: 2016/11/23 04:46:05 by bdurst           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,18 @@ static char		desallocate_b(t_block *b, size_t size)
 	return (1);
 }
 
+char			use_block(t_block *start, t_block *block)
+{
+	if (start && block)
+	{
+		while (start && start != block)
+			start = start->next;
+		if (start)
+			return (1);
+	}
+	return (0);
+}
+
 void			free(void *ptr)
 {
 	t_block	*b;
@@ -79,7 +91,10 @@ void			free(void *ptr)
 	else
 	{
 		b = (t_block*)(ptr - BLOCK_SIZE);
-		if (b && !IS_FREE(b) && b->data == b->ptr)
+		ft_putstr("addr = ");
+		ft_puthexa((unsigned long)ptr, 16, "0123456789123456789abcdef");
+		ft_putstr("\n");
+		if ((use_block(g_env.tiny, b) || use_block(g_env.small, b) || use_block(g_env.large, b)) && !IS_FREE(b))
 		{
 			if (b->size > MAX_SMALL && !IS_CANT_SPLIT(b))
 				str = "Free LARGE : ";

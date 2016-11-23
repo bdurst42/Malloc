@@ -6,7 +6,7 @@
 /*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/09 02:20:59 by bdurst            #+#    #+#             */
-/*   Updated: 2016/11/09 02:47:12 by bdurst           ###   ########.fr       */
+/*   Updated: 2016/11/23 04:33:13 by bdurst           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void	ft_puthexa(unsigned long n, size_t nbase, char *base)
 		ft_putchar(base[n]);
 }
 
-void	ft_putnbr(int n)
+void	ft_putnbr(long n)
 {
 	if (n > 9)
 	{

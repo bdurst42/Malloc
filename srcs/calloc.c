@@ -6,15 +6,28 @@
 /*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/09 00:58:47 by bdurst            #+#    #+#             */
-/*   Updated: 2016/11/09 01:38:33 by bdurst           ###   ########.fr       */
+/*   Updated: 2016/11/23 03:52:46 by bdurst           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
 
-void	*calloc(unsigned long number, unsigned long size)
+static void	*ft_memset(void *b, int c, size_t len)
 {
-	char	*new;
+	size_t	i;
+
+	i = 0;
+	while (i < len)
+	{
+		((unsigned char *)b)[i] = (unsigned char)c;
+		i++;
+	}
+	return (b);
+}
+
+void		*calloc(unsigned long number, unsigned long size)
+{
+	void	*ptr;
 	size_t	i;
 	t_block	*block;
 
@@ -26,14 +39,13 @@ void	*calloc(unsigned long number, unsigned long size)
 		malloc_debug(ERROR, "Calloc failed : ", "number or size are null");
 		return (unlock_fct_with_return(NULL, &g_thread_safe.mutex_calloc));
 	}
-	new = malloc(number * size);
-	if (new)
+	ptr = malloc(number * size);
+	if (ptr)
 	{
-		block = (t_block*)(new - BLOCK_SIZE);
+		block = (t_block*)((void*)ptr - BLOCK_SIZE);
 		malloc_debug(SUCCES, "Calloc : ", "Fill allocation");
-		while (i < block->size)
-			new[i++] = 0;
+		ft_memset(ptr, 0, block->size);
 		malloc_debug(SUCCES, "Calloc : ", "Succes !");
 	}
-	return (unlock_fct_with_return(new, &g_thread_safe.mutex_calloc));
+	return (unlock_fct_with_return(ptr, &g_thread_safe.mutex_calloc));
 }

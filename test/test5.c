@@ -1,5 +1,3 @@
-#include "malloc.h"
-
 int main()
 {
 	malloc(1024);

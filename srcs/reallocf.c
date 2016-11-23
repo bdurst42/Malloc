@@ -6,7 +6,7 @@
 /*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/05 00:07:50 by bdurst            #+#    #+#             */
-/*   Updated: 2016/11/09 01:39:43 by bdurst           ###   ########.fr       */
+/*   Updated: 2016/11/23 04:28:02 by bdurst           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ void	*reallocf(void *p, size_t size)
 
 	malloc_debug(HEADER, "-- REALLOCF --", "");
 	newp = realloc(p, size);
-	free(p);
+	if (!newp)
+		free(p);
 	return (newp);
 }
