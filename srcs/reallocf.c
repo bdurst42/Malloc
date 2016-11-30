@@ -17,8 +17,9 @@ void	*reallocf(void *p, size_t size)
 	void *newp;
 
 	malloc_debug(HEADER, "-- REALLOCF --", "");
+	pthread_mutex_lock(&g_thread_safe.mutex_reallocf);
 	newp = realloc(p, size);
 	if (!newp)
 		free(p);
-	return (newp);
+	return (unlock_fct_with_return(newp, &g_thread_safe.mutex_reallocf));
 }

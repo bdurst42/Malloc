@@ -42,13 +42,10 @@ RM = /bin/rm -rf
 
 all: $(NAME)
 
-debug: CFLAGS += -g3 -D DEBUG_PRINT
-debug: all
-
 $(NAME): mkdirobj $(DEP_OBJ)
 		@ $(shell ln -s $(NAME) $(LIEN))
 		@ /bin/echo -n "Archiving object in $(NAME):"
-		@ $(CC) -shared -o $(NAME) $(OBJS) $(MFLAGS) libft/libft.a
+		@ $(CC) -shared -o $(NAME) $(OBJS) $(MFLAGS)
 		@ echo " \033[32mAll done!\033[0m"
 
 $(DIR_OBJ)%.o: $(SRC_DIR)%.c

@@ -6,7 +6,7 @@
 /*   By: bdurst <bdurst@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/09 01:32:02 by bdurst            #+#    #+#             */
-/*   Updated: 2016/11/23 07:58:59 by bdurst           ###   ########.fr       */
+/*   Updated: 2016/11/30 01:55:12 by bdurst           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 # include <stdlib.h>
 
 # define BLOCK_SIZE 		sizeof(t_block)
-# define MAX_TINY			16
+# define MAX_TINY			32
 # define MAX_SMALL			1024
 # define PSZ				128
 

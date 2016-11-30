@@ -96,6 +96,7 @@ void		*realloc(void *ptr, size_t size)
 	size_t	align_size;
 
 	malloc_debug(HEADER, "-- REALLOC --", "");
+	pthread_mutex_lock(&g_thread_safe.mutex_realloc);
 	merge = 0;
 	align_size = 0;
 	if (!ptr)

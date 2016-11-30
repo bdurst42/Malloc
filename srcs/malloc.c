@@ -16,6 +16,7 @@ t_thread_safe	g_thread_safe = {
 	.mutex_malloc = PTHREAD_MUTEX_INITIALIZER,
 	.mutex_calloc = PTHREAD_MUTEX_INITIALIZER,
 	.mutex_realloc = PTHREAD_MUTEX_INITIALIZER,
+	.mutex_reallocf = PTHREAD_MUTEX_INITIALIZER,
 	.mutex_free = PTHREAD_MUTEX_INITIALIZER,
 	.mutex_show_alloc_mem = PTHREAD_MUTEX_INITIALIZER,
 	.mutex_show_alloc_mem_ex = PTHREAD_MUTEX_INITIALIZER,
@@ -96,15 +97,18 @@ void			*malloc(size_t size)
 	if (!g_env.tiny && init() == -1)
 	{
 		malloc_debug(ERROR, "Malloc : ", "Malloc failed : init error");
+		pthread_mutex_unlock(&g_thread_safe.mutex_malloc);
 		return (NULL);
 	}
 	b = fill_block(get_block(size), size);
-	pthread_mutex_unlock(&g_thread_safe.mutex_malloc);
 	if (b)
 	{
 		malloc_debug(SUCCES, "Malloc : ", "Malloc succes !");
+		unlock_fct_with_return((void*)b + BLOCK_SIZE,
+			&g_thread_safe.mutex_malloc);
 		return ((void*)b + BLOCK_SIZE);
 	}
 	malloc_debug(ERROR, "Malloc : ", "Malloc failed : b null");
+	pthread_mutex_unlock(&g_thread_safe.mutex_malloc);
 	return (NULL);
 }

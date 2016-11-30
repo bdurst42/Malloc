@@ -49,7 +49,7 @@ static char		desallocate_b(t_block *b, size_t size)
 		|| (size > MAX_SMALL && !IS_CANT_SPLIT(b)))
 	{
 		pop_b(b, size);
-		if ((size > MAX_SMALL && !IS_CANT_SPLIT(b)) && !b->prev && !b->next)
+		if (size > MAX_SMALL && !IS_CANT_SPLIT(b) && !b->prev && !b->next)
 		{
 			malloc_debug(SUCCES, "Free : ", "Reset LARGE");
 			g_env.large = NULL;
